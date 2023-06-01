@@ -1,0 +1,66 @@
+import scipy.io as sio
+import numpy as np
+import matplotlib.pyplot as plt
+data = sio.loadmat('regdata.mat')
+x_train = data['X']
+y_train = data['Y']
+x_test = data['Xtest']
+y_test = data['Ytest']
+
+#create an array of 10 to 100
+set_size = np.arange(10, 100, 10)
+
+# Set the range of lambdas to test
+lambdas = np.arange(0, 30)
+
+def ridge_regression(x_train, y_train, lambda_):
+  # Compute the ridge-regression model
+  a = np.linalg.inv(x_train @ x_train.T + lambda_ * np.eye(x_train.shape[0]))
+  b = x_train @ y_train
+  w = a @ b
+  
+  return w
+
+def calculate_loss(x_train, y_train, w):
+  # Calculate the predicted labels
+  y_pred = x_train.T @ w
+  
+  # Calculate the average squared loss
+  loss = np.mean((y_train - y_pred)**2)
+  
+  return loss
+
+def find_lambda_foreach_sample_size(x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test, set_size=set_size, lambdas=lambdas):
+
+  optimal_lambdas = []
+  losses = []
+  # iterate through the set size
+  for size in set_size:
+      # # Get a random m training examples from the training set
+      # indices = np.random.permutation(x_train.shape[0])
+      # get a size first training examples from the training set
+      _trainX = x_train[:,:size]
+      _trainy = y_train[:size]
+      # Iterate through the lambdas
+      for lambda_ in lambdas:
+          # Compute the model parameters for the current lambda
+          w = ridge_regression(_trainX, _trainy, lambda_)
+          # Calculate the loss on the validation set
+          loss = calculate_loss(x_test, y_test, w)
+          # Append the loss to the list of losses
+          losses.append(loss)
+      # Find the index of the minimum loss
+      min_loss_index = np.argmin(losses)
+      optimal_lambdas.append(lambdas[min_loss_index])
+      losses.clear()
+  return optimal_lambdas
+
+
+print(find_lambda_foreach_sample_size())
+optimal_lambdas = find_lambda_foreach_sample_size()
+
+# Plot the results
+plt.plot(set_size, optimal_lambdas)
+plt.xlabel('Training set size')
+plt.ylabel('lambda')
+plt.show()
