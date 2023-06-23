@@ -3,8 +3,6 @@ from cvxopt import solvers, matrix, spmatrix, spdiag, sparse
 import matplotlib.pyplot as plt
 
 
-# todo: complete the following functions, you may add auxiliary functions or define class to help you
-
 def softsvm(l, trainX: np.array, trainy: np.array):
     """
 
